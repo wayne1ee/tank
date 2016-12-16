@@ -3,7 +3,6 @@ var ctx = document.getElementById("ctx").getContext("2d");
     var WIDTH = 600;
     
     
-    jkhkjhlh;h;kjkj
     Tank_List = {};
     Bullet_List = {};
     Wall_List = {};
