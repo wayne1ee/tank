@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tank Fight</title>
+</head>
+
+
+
+<body>
+<canvas id="ctx" width="600" height="600" style="border:1px solid #000000;"></canvas>
+    <script src="js/pre_work.js"></script>
+    <script src="js/Create_entity.js"></script>
+    <script src="js/Create_tank.js"></script>
+    <script src="js/Create_shell.js"></script>
+    <script src="js/Create_wall.js"></script>
+    <script src="js/Create_AI.js"></script>
+
+    <script>
+        //id,type,x,y,width,height,speed,color_entity,shoot_speed,shoot_interval
+    Create_both_side_tanks = function(id,type,x,y,width,height,speed,color_entity,shoot_speed,shoot_interval){
+        
+        //Create_entity(id,type,x,y,width,height,speed,color_entity,shoot_speed,shoot_interval)
+        var tank = Create_Tank(id,type,x,y,width,height,speed,color_entity,shoot_speed,shoot_interval);
+        Tank_List[id] = tank;
+    }
+   
+   
+    
+    
+   
+    
+      document.onkeydown= function(keyboard){
+          
+         if(keyboard.keyCode =='37'||keyboard.keyCode =='39'||keyboard.keyCode =='38'||keyboard.keyCode =='40'||keyboard.keyCode =='83'){
+             
+          if(keyboard.keyCode == '37'){
+          Tank_List['P'].move_left = true;
+        }
+        else if( keyboard.keyCode == '39'){
+            Tank_List['P'].move_right = true;
+        }
+         else if(keyboard.keyCode == '38'){
+            Tank_List['P'].move_top = true;
+        }
+         else if(keyboard.keyCode == '40'){
+              Tank_List['P'].move_down = true;
+          } 
+        if(keyboard.keyCode =='83'){
+            Tank_List['P'].shoot = true;
+        }
+            
+         }  
+    }
+    document.onkeyup =function(keyboard){
+        if(keyboard.keyCode == '83'){
+            Tank_List['P'].shoot = false;
+        }
+        if(keyboard.keyCode == '37'){
+            Tank_List['P'].move_left = false;
+        }
+        if(keyboard.keyCode =='39'){
+            Tank_List['P'].move_right = false;
+        }
+          if(keyboard.keyCode =='38'){
+            Tank_List['P'].move_top = false;
+        }
+          if(keyboard.keyCode == '40'){
+              Tank_List['P'].move_down = false;
+          }
+    }
+    
+    
+    // function(id,type,x,y,width,height,speed,color_entity,shoot_speed,shoot_interval){
+    
+    Map_1 = function(){
+        //function(id,type,x,y,width,height,speed,color_entity,shoot_speed,shoot_interval)
+        
+        
+         Create_both_side_tanks('T_1','T',400,300,16,16,3,'red',250,250);
+        Create_both_side_tanks('T_2','T',30,140,16,16,3,'red',250,250);
+        Create_both_side_tanks('T_3','T',30,320,16,16,3,'red',200,200);
+        Create_both_side_tanks('T_4','T',400,400,24,24,1,'red',10,10);
+        Create_both_side_tanks('T_5','T',300,300,10,10,2,'red',150,150);
+         Create_both_side_tanks('P','P',450,100,16,16,1,'red',140,140);
+        var map_brick_wall_array = new Array();
+        map_brick_wall_array=[[40,80],[80,80],[120,80],[160,80],[200,80],[180,120],[160,160],[120,180],[80,180],[40,180],[40,220],[40,260],[80,260],[120,260],[160,260],[200,260],[180,300],[160,340],[140,380],[120,420],[100,460],[60,430]];
+        var map_brick_wall_array_length = map_brick_wall_array.length;
+        do{
+            map_brick_wall_array_length--;           Create_Large_Block_wall('W_B_'+Information_list['count_big_wall'].toString(),'W_B','brick_wall',map_brick_wall_array[map_brick_wall_array_length][0],map_brick_wall_array[map_brick_wall_array_length][1],40,40,null,null);
+        }while(map_brick_wall_array_length > 0)
+        // top wall
+        for(var i=0; i<29;i++){
+             Create_Large_Block_wall('W_B_'+Information_list['count_big_wall'].toString(),'W_B','iron_wall',i*20,0,20,20,null,null);
+        }
+        
+         
+        //left wall
+        for(var i=0; i<29;i++){
+             Create_Large_Block_wall('W_B_'+Information_list['count_big_wall'].toString(),'W_B','iron_wall',0,i*20,20,20,null,null);
+        }
+        
+        //right wall
+        for(var i=0; i<29;i++){
+             Create_Large_Block_wall('W_B_'+Information_list['count_big_wall'].toString(),'W_B','iron_wall',580,i*20,20,20,null,null);
+        }
+        
+       //bot wall
+        for(var i=0; i<30;i++){
+             Create_Large_Block_wall('W_B_'+Information_list['count_big_wall'].toString(),'W_B','iron_wall',i*20,580,20,20,null,null);
+        }       
+        
+        //middle
+        
+//       Create_Large_Block_wall('W_B_'+Information_list['count_big_wall'].toString(),'W_B','iron_wall',240,200,20,20,null,null);
+//    Create_complete_wall(300,100,'independed','brick_wall',10,10,true);
+        
+    }
+        
+    
+    Map_1();
+    
+        
+       Game_Tank_Move = function(){
+            //坦克运动
+        for(var key in Tank_List){
+            
+        if(Tank_List[key].prepare_to_fight_long <=Information_list['Tank_give_brith_period']){
+             if(Tank_List[key].prepare_to_fight_long%2 == 0){
+                    Tank_List[key].Give_to_birth();
+                    Tank_List[key].prepare_to_fight_long++;
+                }else{
+                    Tank_List[key].prepare_to_fight_long++;
+                }
+        }else if(Tank_List[key].prepare_to_fight_long > Information_list['Tank_give_brith_period']){
+             Tank_List[key].move();
+            Tank_List[key].shoot_bullet();
+            }
+        }
+    }
+        
+        
+       
+//        Game_Shoot_Bullet =function(){
+//                 //坦克射子弹
+//            for(var key in Tank_List){
+//                 
+//            }
+//        }
+        
+       
+       
+        
+        
+        //子弹的运动和碰撞
+        Game_bullet_Move = function(){
+             for(var key in Bullet_List){
+            Bullet_List[key].move();
+            }
+        }
+        
+        //子弹的碰撞
+        Game_Bullet_Hit = function(){
+            for(var key in Bullet_List){
+            Bullet_List[key].hit_entity();
+            }
+        }
+       
+         //坦克和墙碰撞
+        Game_Tank_Wall_Collision = function(){
+                for(var key in Tank_List){
+                Tank_List[key].tank_wall_collision();
+            }
+        }
+        
+            
+        
+        
+        //坦克和坦克的碰撞
+        Game_Tank_Tank_Collision = function(){
+                var tank_move_this_interval_length = Information_list['tank_move_this_interval'].length;
+            if(tank_move_this_interval_length>0){
+                    do{
+                    tank_move_this_interval_length--;
+                    var Tank_move_id_and_type = Information_list['tank_move_this_interval'].pop();
+                        Tank_List[Tank_move_id_and_type[0]].Tank_Tank_collision();
+                    }while(tank_move_this_interval_length>0);
+                Information_list['tank_move_this_interval'] =[];
+            }       
+        }
+        
+        //坦克的AI
+        Game_AI = function(){
+            for(var key in Tank_List){
+                Tank_AI(key);
+            }
+        }
+        
+//    Game = function(){
+//        if(Information_list['Game_Interval'] == 0){
+//            Game_Tank_Move();
+//            Information_list['Game_Interval']++;
+//        }else if(Information_list['Game_Interval'] == 1){
+//            Game_Shoot_Bullet();
+//            Information_list['Game_Interval']++;
+//        }else if(Information_list['Game_Interval'] == 2){
+//            Game_bullet_Move();
+//            Information_list['Game_Interval']++;
+//        }else if(Information_list['Game_Interval'] == 3){
+//            Game_Bullet_Hit();
+//            Information_list['Game_Interval']++;
+//        }else if(Information_list['Game_Interval'] == 4){
+//            Game_Tank_Wall_Collision();
+//            Information_list['Game_Interval']++;
+//        }else if(Information_list['Game_Interval'] == 5){
+//            Game_Tank_Tank_Collision();
+//            Information_list['Game_Interval'] = 0;
+//        }
+//    } 
+        
+        
+        Game = function(){
+                
+                        
+            
+            
+            
+                 if(Information_list['Game_Interval'] == 0){
+                        Game_Tank_Move();
+                        Game_Tank_Wall_Collision();
+                        Game_Tank_Tank_Collision();   
+                        Information_list['Game_Interval']++;
+                    }else if(Information_list['Game_Interval'] == 1){
+                         Game_bullet_Move();
+                         
+                        Information_list['Game_Interval']++;
+                    }
+                    else if(Information_list['Game_Interval'] == 2){ 
+                        Game_Bullet_Hit();
+                        Game_AI();
+                        Information_list['Game_Interval'] = 0;
+                    }
+            
+           }
+        
+    
+    
+     setInterval(Game, 3); 
+</script>
+
+	
+</body>
+</html>
